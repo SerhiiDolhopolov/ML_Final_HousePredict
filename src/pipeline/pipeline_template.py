@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import logging
-from inspect import signature
 
 import pandas as pd
 
@@ -16,6 +15,7 @@ class PipelineTemplate(ABC):
         df = self.__df.copy()
         df = self._drop_not_needed(df)
         df = self._fill_null(df)
+        df = self._preprocess_features(df)
         df = self._add_new_features(df)
         df = self._encode(df)
         df = self._normalize(df)
@@ -28,6 +28,10 @@ class PipelineTemplate(ABC):
         
     @abstractmethod
     def _fill_null(self, df) -> pd.DataFrame:
+        pass
+    
+    @abstractmethod
+    def _preprocess_features(self, df) -> pd.DataFrame:
         pass
 
     @abstractmethod
