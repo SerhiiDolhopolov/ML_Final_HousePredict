@@ -1,3 +1,4 @@
+# сюди виносяться зручні практики для багатьох пайплайнів обробки
 class HousePriceFeatureManager:
     def is_positive_rate(self, value) -> bool:
         return value in ['Ex', 'Gd', 'GLQ', 'Fin', 'GdPrv', 'GdWo']
