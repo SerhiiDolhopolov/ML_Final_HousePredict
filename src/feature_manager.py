@@ -1,9 +1,13 @@
+from abc import ABC
+
 import pandas as pd
 import numpy as np
 from scipy.stats import entropy
+from sklearn.preprocessing import StandardScaler
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
-class FeatureManager:
+class FeatureManager(ABC):
     @staticmethod
     def get_smallest_category(df) -> pd.DataFrame:
         df = df.select_dtypes(include=['object', 'category'])
@@ -35,4 +39,56 @@ class FeatureManager:
         null_columns = df.columns[df.isnull().any(axis=0)]
         null_columns_list = ', '.join(null_columns) if not null_columns.empty else "None"
         return null_columns_list
+    
+    @staticmethod
+    def get_high_correlation_features(df, theresold: float = 0.75) -> pd.Series:
+        """Return sum of high corelation (>= theresold) features only where correlation > 0 in descending order.
+    
+        Returns:
+            pd.Series: Features with sum of high corelation, where low correlation are thrown out
+        """
+        df = df.select_dtypes(include=[np.number])
+        corr = df.corr()
+        corr_filter = corr[(abs(corr) >= theresold) & (abs(corr) != 1)]
+        corr_df = corr_filter.dropna(how='all').dropna(axis=1, how='all')
+        return corr_df.abs().sum().sort_values(ascending=False)
+
+    @staticmethod
+    def get_VIF_correlation_features(df) -> pd.Series:
+        df = df.select_dtypes(include=[np.number])
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(df)
+        vif_data = pd.DataFrame()
+        vif_data["feature"] = df.columns
+        vif_data["VIF"] = [variance_inflation_factor(X_scaled, i) for i in range(X_scaled.shape[1])]
+
+        vif_data = vif_data.sort_values(by="VIF", ascending=False)
+        return vif_data
+        
+    def transform_feature_with_others(
+        self, 
+        df, 
+        column_name: str, 
+        valid_values: list[str]
+    ) -> pd.Series:
+        return df[column_name].apply(lambda x: x if x in valid_values else 'Others')
+    
+    def transform_feature_to_are(
+        self, 
+        df, 
+        column_name: str, 
+        new_column_name: str, 
+        true_values: list[str]
+    ):
+        df[new_column_name] = df[column_name].apply(lambda x: x in true_values).astype('int8')
+        df.drop(columns=[column_name], inplace=True)
+        
+    def transform_feature_to_is_not_none(
+        self,
+        df,
+        column_name: str,
+        new_column_name: str
+    ):
+        df[new_column_name] = df[column_name].apply(lambda x: not pd.isnull(x)).astype('int8')
+        df.drop(columns=[column_name], inplace=True)
         

@@ -46,37 +46,11 @@ class PipelineTemplate(ABC):
     def _drop_high_correlation(self, df) -> pd.DataFrame:
         pass
     
-    def transform_feature_with_others(
-        self, 
-        df, 
-        column_name: str, 
-        valid_values: list[str]
-    ) -> pd.Series:
-        return df[column_name].apply(lambda x: x if x in valid_values else 'Others')
-    
-    def transform_feature_to_are(
-        self, 
-        df, 
-        column_name: str, 
-        new_column_name: str, 
-        true_values: list[str]
-    ):
-        df[new_column_name] = df[column_name].apply(lambda x: x in true_values).astype('int8')
-        df.drop(columns=[column_name], inplace=True)
-            
-    def transform_feature_to_is_not_none(
-        self,
-        df,
-        column_name: str,
-        new_column_name: str
-    ):
-        df[new_column_name] = df[column_name].apply(lambda x: not pd.isnull(x)).astype('int8')
-        df.drop(columns=[column_name], inplace=True)
-
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
-        allowed_methods = ['_drop_not_needed', '_fill_null', '_encode',
-                            '_normalize', '_drop_high_correlation']
+        allowed_methods = ['_drop_not_needed', '_fill_null', '_encode', 
+                           '_preprocess_features', '_normalize', 
+                           '_drop_high_correlation']
         if callable(attr) and name in allowed_methods:
             return self.__log(attr)
         return attr
