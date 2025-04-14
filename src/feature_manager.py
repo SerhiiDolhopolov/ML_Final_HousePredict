@@ -64,31 +64,3 @@ class FeatureManager(ABC):
 
         vif_data = vif_data.sort_values(by="VIF", ascending=False)
         return vif_data
-        
-    def transform_feature_with_others(
-        self, 
-        df, 
-        column_name: str, 
-        valid_values: list[str]
-    ) -> pd.Series:
-        return df[column_name].apply(lambda x: x if x in valid_values else 'Others')
-    
-    def transform_feature_to_are(
-        self, 
-        df, 
-        column_name: str, 
-        new_column_name: str, 
-        true_values: list[str]
-    ):
-        df[new_column_name] = df[column_name].apply(lambda x: x in true_values).astype('int8')
-        df.drop(columns=[column_name], inplace=True)
-        
-    def transform_feature_to_is_not_none(
-        self,
-        df,
-        column_name: str,
-        new_column_name: str
-    ):
-        df[new_column_name] = df[column_name].apply(lambda x: not pd.isnull(x)).astype('int8')
-        df.drop(columns=[column_name], inplace=True)
-        

@@ -6,6 +6,7 @@ import pandas as pd
 from split_data_type import SplitDataType
 from feature_manager import FeatureManager
 
+
 #реалізація патерну Template Method
 class PipelineTemplate(ABC):
     def __init__(self, df, split_data_type: SplitDataType):
