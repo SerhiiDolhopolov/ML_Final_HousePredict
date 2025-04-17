@@ -27,10 +27,10 @@ class Teacher:
     
     def predict(self, X, y) -> np.ndarray:
         X = X[self.columns]
-        y = np.log1p(y)
         y_pred = self.estimator.predict(X)
-        logging.debug('Помилка:{0}'.format(np.sqrt(mean_squared_error(y, y_pred))))
         y_pred = np.expm1(y_pred)
+        logging.debug('RMSE:{0}'.format(np.sqrt(mean_squared_error(y, y_pred))))
+        logging.debug('RMSLE:{0}'.format(mean_squared_error(np.log1p(y), np.log1p(y_pred))))
         return y_pred
     
     def search_params(self, params: dict, scoring: str, n_jobs: int = -1):
@@ -50,4 +50,3 @@ class Teacher:
         sorted_idx = np.argsort(importance)[::-1]
         sorted_features = X.columns[sorted_idx]
         logging.debug(sorted_features[:max_display])
-   
