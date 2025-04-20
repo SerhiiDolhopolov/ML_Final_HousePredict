@@ -125,4 +125,5 @@ class TreeSimilarPipeline(PipelineTemplate):
         # VIF
         df.drop(columns=['LowQualFinSF', 'GrLivArea'
                          ], errors='ignore', inplace=True)
+    
         return df

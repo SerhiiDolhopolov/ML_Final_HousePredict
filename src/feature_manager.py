@@ -41,14 +41,14 @@ class FeatureManager(ABC):
         return null_columns_list
     
     @staticmethod
-    def get_high_correlation_features(df, theresold: float = 0.75) -> pd.Series:
+    def get_high_correlation_features(df, method: str = 'pearson', theresold: float = 0.75) -> pd.Series:
         """Return sum of high corelation (>= theresold) features only where correlation > 0 in descending order.
     
         Returns:
             pd.Series: Features with sum of high corelation, where low correlation are thrown out
         """
         df = df.select_dtypes(include=[np.number])
-        corr = df.corr()
+        corr = df.corr(method=method)
         corr_filter = corr[(abs(corr) >= theresold) & (abs(corr) != 1)]
         corr_df = corr_filter.dropna(how='all').dropna(axis=1, how='all')
         return corr_df.abs().sum().sort_values(ascending=False)
