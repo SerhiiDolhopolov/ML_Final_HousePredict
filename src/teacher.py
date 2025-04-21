@@ -1,7 +1,7 @@
 import logging
 
+import pandas as pd
 import numpy as np
-import optuna
 import shap
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_squared_log_error
@@ -15,8 +15,8 @@ class Teacher:
                  y_train, 
                  uniformed_features: list[str] = None):
         self.estimator = estimator
-        self.X_train = X_train
-        self.y_train = y_train
+        self.X_train = X_train.copy()
+        self.y_train = y_train.copy()
         if uniformed_features is None:
             uniformed_features = []
         self.X_train.drop(columns=uniformed_features, inplace=True, errors='ignore')
@@ -63,10 +63,18 @@ class Teacher:
         grid_search.fit(self.X_train, np.log1p(self.y_train))
         print("Best params:", grid_search.best_params_)
     
+    def show_feature_importances(self, X):
+        importance_df = pd.DataFrame({
+        'Feature': X.columns,
+        'Importance': self.estimator.feature_importances_
+    }).sort_values(by='Importance', ascending=False)
+        print(importance_df)
+        print(importance_df['Feature'].tolist())
+        
     def show_shap(self, X, max_display: int = -1):
         X = X[self.columns]
         shap.initjs()
-        explainer = shap.Explainer(self.estimator, X)
+        explainer = shap.Explainer(self.estimator)
         shap_values = explainer.shap_values(X)
         shap.summary_plot(shap_values, X, plot_type="bar", max_display=max_display)
 
