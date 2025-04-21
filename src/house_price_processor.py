@@ -28,3 +28,14 @@ class HousePriceProcessor():
     def transform_feature_to_is_not_none(df, column_name: str, new_column_name: str):
         df[new_column_name] = df[column_name].apply(lambda x: not pd.isnull(x)).astype('int8')
         df.drop(columns=[column_name], inplace=True)
+    
+    @staticmethod
+    def transform_feature_to_is_not_0(df, column_name: str, new_column_name: str):
+        df[new_column_name] = df[column_name].apply(lambda x: x != 0).astype('int8')
+        df.drop(columns=[column_name], inplace=True)
+        
+    @staticmethod
+    def year_validation(df, column_name: str):
+        validation = lambda x: mean_year if x > 2016 or x < 1800 else x
+        mean_year = df[column_name].mean()
+        df[column_name] = df[column_name].apply(validation)

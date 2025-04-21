@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+import optuna
 import shap
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_squared_log_error
@@ -47,15 +48,16 @@ class Teacher:
         self.estimator.fit(self.X_train, y_train)
         return self.estimator.score(self.X_train, y_train)
     
-    def predict(self, X, y) -> np.ndarray:
+    def predict(self, X, y = None) -> np.ndarray:
         X = X[self.columns]
         y_pred = self.estimator.predict(X)
         y_pred = np.expm1(y_pred)
-        logging.debug('RMSE:{0}'.format(np.sqrt(mean_squared_error(y, y_pred))))
-        logging.debug('RMSLE:{0}'.format(np.sqrt(mean_squared_log_error(y, y_pred))))
+        if y is not None:
+            logging.debug('RMSE:{0}'.format(np.sqrt(mean_squared_error(y, y_pred))))
+            logging.debug('RMSLE:{0}'.format(np.sqrt(mean_squared_log_error(y, y_pred))))
         return y_pred
     
-    def search_params(self, params: dict, scoring: str, n_jobs: int = -1):
+    def search_params_by_grid(self, params: dict, scoring: str, n_jobs: int = -1):
         grid_search = GridSearchCV(estimator=self.estimator, param_grid=params, 
                                    scoring=scoring, n_jobs=n_jobs)
         grid_search.fit(self.X_train, np.log1p(self.y_train))

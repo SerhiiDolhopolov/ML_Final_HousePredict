@@ -1,7 +1,7 @@
 from pipelines import PipelineTemplate
 
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, QuantileTransformer
 
 from split_data_type import SplitDataType
 from house_price_processor import HousePriceProcessor as HPP
@@ -11,14 +11,16 @@ class TreeSimilarPipeline(PipelineTemplate):
     def __init__(self, 
         df, 
         split_data_type: SplitDataType, 
-        label_encoder: LabelEncoder
+        label_encoder: LabelEncoder,
+        quantile_transformer: QuantileTransformer,
         ):
         super().__init__(df, split_data_type)
         self.label_encoder = label_encoder
+        self.quantile_transformer = quantile_transformer
 
     def _drop_not_needed(self, df) -> pd.DataFrame:
         df.drop(columns=['Id', 'Utilities', 'RoofMatl', 
-                         'Condition2', 'Heating', 'Street'
+                         'Condition2', 'Heating', 'Street', 'MSSubClass'
                          ], errors='ignore', inplace=True)
         return df
 
@@ -35,6 +37,7 @@ class TreeSimilarPipeline(PipelineTemplate):
             'BsmtHalfBath': df['BsmtHalfBath'].mean(),
             'GarageCars': 0,
             'GarageArea': 0,
+            'TotalBsmtSF': 0
         }, inplace=True)
         HPP.transform_feature_to_is_not_none(df, 'Alley', 'WithAlley')
         HPP.transform_feature_to_is_not_none(df, 'MasVnrType', 'WithMasonry')
@@ -46,6 +49,15 @@ class TreeSimilarPipeline(PipelineTemplate):
         df = self._features_to_rates(df)
         df = self._features_to_others(df)
         df = self._feautures_to_is(df)
+        
+        action = (self.quantile_transformer.fit_transform if self.split_data_type.TRAIN 
+                  else self.quantile_transformer.transform)
+        for col in ['LotFrontage', 'LotArea', 'MasVnrArea', 'BsmtFinSF1',
+                    'BsmtUnfSF', '1stFlrSF', '2ndFlrSF', 'WoodDeckSF', 'OpenPorchSF']:
+            df[col] = action(df[[col]])
+        
+        for col in ['YearBuilt', 'YearRemodAdd', 'GarageYrBlt']:
+            HPP.year_validation(df, col)
         return df
 
     def _features_to_rates(self, df) -> pd.DataFrame:
@@ -104,6 +116,9 @@ class TreeSimilarPipeline(PipelineTemplate):
         HPP.transform_feature_to_are(df, 'PavedDrive', 'Is_paved', ['Y'])
         HPP.transform_feature_to_are(df, 'LandContour', 'Is_level_landContour', ['Lvl'])
         HPP.transform_feature_to_are(df, 'CentralAir', 'Is_central_air', ['Y'])
+        
+        for column in ['EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 'MiscVal']:
+            HPP.transform_feature_to_is_not_0(df, column, 'Is_' + column.lower())
         return df
 
     def _encode(self, df) -> pd.DataFrame:
@@ -118,12 +133,12 @@ class TreeSimilarPipeline(PipelineTemplate):
     
     def _drop_high_correlation(self, df) -> pd.DataFrame:
         # Пірсона
-        df.drop(columns=['GarageCond', 'WithPool', 'GarageQual',
-                         'Exterior2nd', 'GarageArea', 'FireplaceQu',
-                         'TotRmsAbvGrd', 'BsmtFinSF2', 'TotalBsmtSF'
+        df.drop(columns=['Is_miscval', 'WithMasonry', 'Is_finished_bsmt_fintype1',
+                         'GarageQual', 'Exterior2nd', 'GarageCars', 'FireplaceQu',
+                         'GrLivArea', 'BsmtFinSF2'
                          ], errors='ignore', inplace=True)
         # VIF
-        df.drop(columns=['LowQualFinSF', 'GrLivArea'
+        df.drop(columns=['Is_poolarea', 'GarageYrBlt', 'YearBuilt'
                          ], errors='ignore', inplace=True)
     
         return df
