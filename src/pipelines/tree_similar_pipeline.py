@@ -56,8 +56,11 @@ class TreeSimilarPipeline(PipelineTemplate):
                     'BsmtUnfSF', '1stFlrSF', '2ndFlrSF', 'WoodDeckSF', 'OpenPorchSF']:
             df[col] = action(df[[col]])
         
+        # Валідація в випадку дерев буде як -1, в випадку лінійної регресії або KNN це було б середнє
         for col in ['YearBuilt', 'YearRemodAdd', 'GarageYrBlt']:
-            HPP.year_validation(df, col)
+            validation = lambda x: -1 if x > 2016 or x < 1800 else x
+            df[col] = df[col].apply(validation)
+            
         return df
 
     def _features_to_rates(self, df) -> pd.DataFrame:
