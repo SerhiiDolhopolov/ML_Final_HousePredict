@@ -20,7 +20,7 @@ class HousePriceProcessor():
         return df[column_name].apply(lambda x: x if x in valid_values else 'Others')
     
     @staticmethod
-    def transform_feature_to_are(df, column_name: str, new_column_name: str, true_values: list[str]):
+    def transform_feature_to_is(df, column_name: str, new_column_name: str, true_values: list[str]):
         df[new_column_name] = df[column_name].apply(lambda x: x in true_values).astype('int8')
         df.drop(columns=[column_name], inplace=True)
     

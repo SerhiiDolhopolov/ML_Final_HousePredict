@@ -26,15 +26,15 @@ class TreeSimilarPipeline(PipelineTemplate):
 
     def _fill_null(self, df) -> pd.DataFrame:
         df.fillna({
-            'LotFrontage': df['LotFrontage'].mean(),
-            'MasVnrArea': df['MasVnrArea'].mean(),
-            'GarageYrBlt': -1,
+            'LotFrontage': df['LotFrontage'].median(),
+            'MasVnrArea': 0,
+            'GarageYrBlt': 0,
             'GarageFinish': 'NoGarage',
             'BsmtFinSF1': 0,
             'BsmtFinSF2': 0,
             'BsmtUnfSF': 0,
-            'BsmtFullBath': df['BsmtFullBath'].mean(),
-            'BsmtHalfBath': df['BsmtHalfBath'].mean(),
+            'BsmtFullBath': 0,
+            'BsmtHalfBath': 0,
             'GarageCars': 0,
             'GarageArea': 0,
             'TotalBsmtSF': 0
@@ -46,24 +46,14 @@ class TreeSimilarPipeline(PipelineTemplate):
         return df
 
     def _preprocess_features(self, df) -> pd.DataFrame:
-        df = self._features_to_rates(df)
-        df = self._features_to_others(df)
-        df = self._feautures_to_is(df)
-        
-        action = (self.quantile_transformer.fit_transform if self.split_data_type.TRAIN 
-                  else self.quantile_transformer.transform)
-        for col in ['LotFrontage', 'LotArea', 'MasVnrArea', 'BsmtFinSF1',
-                    'BsmtUnfSF', '1stFlrSF', '2ndFlrSF', 'WoodDeckSF', 'OpenPorchSF']:
-            df[col] = action(df[[col]])
-        
-        # Валідація в випадку дерев буде як -1, в випадку лінійної регресії або KNN це було б середнє
-        for col in ['YearBuilt', 'YearRemodAdd', 'GarageYrBlt']:
-            validation = lambda x: -1 if x > 2016 or x < 1800 else x
-            df[col] = df[col].apply(validation)
-            
+        self.__features_to_rates(df)
+        self.__features_to_others(df)
+        self.__feautures_to_is(df)
+        self.__quantile_features(df)
+        self.__validation_features_years(df)
         return df
 
-    def _features_to_rates(self, df) -> pd.DataFrame:
+    def __features_to_rates(self, df):
         for column in ['HeatingQC', 'ExterCond', 'BsmtCond', 'GarageCond', 
                        'GarageQual', 'ExterQual', 'BsmtQual', 'FireplaceQu',
                        'KitchenQual', 'Fence', 'BsmtExposure']:
@@ -72,9 +62,8 @@ class TreeSimilarPipeline(PipelineTemplate):
                 'neutral' if HPP.is_neutral_rate(x) else
                 'negative' if HPP.is_negative_rate(x) else
                 'Others')
-        return df
 
-    def _features_to_others(self, df) -> pd.DataFrame: 
+    def __features_to_others(self, df): 
         exterior_list = ['VinylSd', 'HdBoard', 'MetalSd', 'Wd Sdng', 'Plywood']
         
         df['Exterior1st'] = HPP.transform_feature_with_others(df, 'Exterior1st', exterior_list)
@@ -102,33 +91,47 @@ class TreeSimilarPipeline(PipelineTemplate):
                 return 'Others'
             
         df['SaleType'] = df['SaleType'].apply(lambda x: transorm_sale_type(x))
-        return df
 
-    def _feautures_to_is(self, df) -> pd.DataFrame:
+    def __feautures_to_is(self, df):
         bsmt_fin_type_list = ['GLQ', 'ALQ', 'BLQ', 'Rec', 'LwQ']
-        HPP.transform_feature_to_are(df, 'BsmtFinType1', 'Is_finished_bsmt_fintype1', bsmt_fin_type_list)
-        HPP.transform_feature_to_are(df, 'BsmtFinType2', 'Is_finished_bsmt_fintype2', bsmt_fin_type_list)
-        HPP.transform_feature_to_are(df, 'Functional', 'Is_typical_functional', ['Typ'])
-        HPP.transform_feature_to_are(df, 'Electrical', 'Is_standard_electrical', ['SBrkr'])
-        HPP.transform_feature_to_are(df, 'RoofStyle', 'Is_gable_roofstyle', ['Gable'])
-        HPP.transform_feature_to_are(df, 'Condition1', 'Is_norm_condition1', ['Norm'])
-        HPP.transform_feature_to_are(df, 'SaleCondition', 'Is_normal_sale_condition', ['Normal'])
-        HPP.transform_feature_to_are(df, 'LotShape', 'Is_reg_lotshape', ['Reg'])
-        HPP.transform_feature_to_are(df, 'MSZoning', 'Is_residential_mszoning', ['RL', 'RM', 'RP', 'RH'])
-        HPP.transform_feature_to_are(df, 'LandSlope', 'Is_Gtl_landslope', ['Gtl'])
-        HPP.transform_feature_to_are(df, 'PavedDrive', 'Is_paved', ['Y'])
-        HPP.transform_feature_to_are(df, 'LandContour', 'Is_level_landContour', ['Lvl'])
-        HPP.transform_feature_to_are(df, 'CentralAir', 'Is_central_air', ['Y'])
+        HPP.transform_feature_to_is(df, 'BsmtFinType1', 'Is_finished_bsmt_fintype1', bsmt_fin_type_list)
+        HPP.transform_feature_to_is(df, 'BsmtFinType2', 'Is_finished_bsmt_fintype2', bsmt_fin_type_list)
+        HPP.transform_feature_to_is(df, 'Functional', 'Is_typical_functional', ['Typ'])
+        HPP.transform_feature_to_is(df, 'Electrical', 'Is_standard_electrical', ['SBrkr'])
+        HPP.transform_feature_to_is(df, 'RoofStyle', 'Is_gable_roofstyle', ['Gable'])
+        HPP.transform_feature_to_is(df, 'Condition1', 'Is_norm_condition1', ['Norm'])
+        HPP.transform_feature_to_is(df, 'SaleCondition', 'Is_normal_sale_condition', ['Normal'])
+        HPP.transform_feature_to_is(df, 'LotShape', 'Is_reg_lotshape', ['Reg'])
+        HPP.transform_feature_to_is(df, 'MSZoning', 'Is_residential_mszoning', ['RL', 'RM', 'RP', 'RH'])
+        HPP.transform_feature_to_is(df, 'LandSlope', 'Is_Gtl_landslope', ['Gtl'])
+        HPP.transform_feature_to_is(df, 'PavedDrive', 'Is_paved', ['Y'])
+        HPP.transform_feature_to_is(df, 'LandContour', 'Is_level_landContour', ['Lvl'])
+        HPP.transform_feature_to_is(df, 'CentralAir', 'Is_central_air', ['Y'])
         
         for column in ['EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 'MiscVal']:
             HPP.transform_feature_to_is_not_0(df, column, 'Is_' + column.lower())
-        return df
+    
+    def __quantile_features(self, df): 
+        columns = ['LotFrontage', 'LotArea', 'MasVnrArea', 'BsmtFinSF1',
+                   'BsmtUnfSF', '1stFlrSF', '2ndFlrSF', 'WoodDeckSF', 'OpenPorchSF']
+        for col in columns:
+            if self.split_data_type.TRAIN:
+                df[col] = self.quantile_transformer.fit_transform(df[[col]])
+            else:
+                df[col] = self.quantile_transformer.transform(df[[col]])
+                
+    def __validation_features_years(self, df):
+        # Валідація в випадку дерев буде як -1, в випадку лінійної регресії або KNN це було б середнє
+        for col in ['YearBuilt', 'YearRemodAdd', 'GarageYrBlt']:
+            validation = lambda x: -1 if x > 2016 or x < 1800 else x
+            df[col] = df[col].apply(validation)
 
     def _encode(self, df) -> pd.DataFrame:
-        action = (self.label_encoder.fit_transform if self.split_data_type.TRAIN 
-                  else self.label_encoder.transform)
         for col in df.select_dtypes(include=['object']).columns:
-            df[col] = action(df[col])
+            if self.split_data_type.TRAIN:
+                df[col] = self.label_encoder.fit_transform(df[col])
+            else:
+                df[col] = self.label_encoder.transform(df[col])
         return df
         
     def _normalize(self, df) -> pd.DataFrame:
