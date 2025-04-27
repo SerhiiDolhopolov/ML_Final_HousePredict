@@ -76,7 +76,7 @@ class Teacher:
         shap.initjs()
         explainer = shap.Explainer(self.estimator)
         shap_values = explainer.shap_values(X)
-        shap.summary_plot(shap_values, X, plot_type="bar", max_display=max_display)
+        shap.summary_plot(shap_values, X, max_display=max_display)
 
         importance = np.abs(shap_values).mean(axis=0)
         sorted_idx = np.argsort(importance)[::-1]
