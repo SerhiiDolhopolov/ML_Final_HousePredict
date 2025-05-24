@@ -1,9 +1,9 @@
-### Languages
+## Languages
 [![python](https://img.shields.io/badge/python-3.13-d6123c?color=white&labelColor=d6123c&logo=python&logoColor=white)](#)
 
 ---
 
-### Frameworks
+## Frameworks
 [![pandas](https://img.shields.io/badge/pandas-2.2.3-d6123c?logo=pandas&logoColor=white&color=white&labelColor=d6123c)](#)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.6.1-d6123c?logo=scikit-learn&logoColor=white&color=white&labelColor=d6123c)](#)
 [![matplotlib](https://img.shields.io/badge/matplotlib-3.10.1-d6123c?color=white&labelColor=d6123c)](#)
