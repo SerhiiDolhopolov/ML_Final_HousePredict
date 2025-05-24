@@ -8,6 +8,8 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.6.1-d6123c?logo=scikit-learn&logoColor=white&color=white&labelColor=d6123c)](#)
 [![matplotlib](https://img.shields.io/badge/matplotlib-3.10.1-d6123c?color=white&labelColor=d6123c)](#)
 
+---
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Screenshots](#screenshots)
