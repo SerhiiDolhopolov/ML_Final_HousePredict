@@ -1,28 +1,12 @@
-<table align="center">
-  <td colspan="5" align="center">
-    <table>
-      <tr>
-       <td align="center">
-        <img src="https://img.shields.io/badge/python-3.13-d6123c?color=white&labelColor=d6123c&logo=python&logoColor=white" alt="python">
-        </td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <td align="center">
-          <img src="https://img.shields.io/badge/pandas-2.2.3-d6123c?logo=pandas&logoColor=white&color=white&labelColor=d6123c" alt="pandas">
-        </td>
-        <td align="center">
-          <img src="https://img.shields.io/badge/scikit--learn-1.6.1-d6123c?logo=scikit-learn&logoColor=white&color=white&labelColor=d6123c" alt="scikit-learn">
-        </td>
-        <td align="center">
-          <img src="https://img.shields.io/badge/matplotlib-3.10.1-d6123c?color=white&labelColor=d6123c" alt="matplotlib">
-        </td>
-      </tr>
-    </table>
-  </td>
-</tr>
-</table>
+### Languages
+[![python](https://img.shields.io/badge/python-3.13-d6123c?color=white&labelColor=d6123c&logo=python&logoColor=white)](#)
+
+---
+
+### Frameworks
+[![pandas](https://img.shields.io/badge/pandas-2.2.3-d6123c?logo=pandas&logoColor=white&color=white&labelColor=d6123c)](#)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.6.1-d6123c?logo=scikit-learn&logoColor=white&color=white&labelColor=d6123c)](#)
+[![matplotlib](https://img.shields.io/badge/matplotlib-3.10.1-d6123c?color=white&labelColor=d6123c)](#)
 
 ## Table of Contents
 - [Introduction](#introduction)
