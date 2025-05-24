@@ -27,6 +27,8 @@
 ## Table of Contents
 - [Introduction](#introduction)
 - [Screenshots](#screenshots)
+  - [Most informative features by SHAP](#most-informative-features-by-shap)
+  - [Final RMSLE](#final-rmsle)
 
 # Introduction
 This project is the final task for the Machine Learning course at [BigDataLab](https://www.bigdatalab.com.ua/).
@@ -35,8 +37,8 @@ The task was to train an ML model on a regression problem using the [House Price
 I used tree-based models/ensembles to reach this goal, such as **Decision Tree**, **Random Forest**, **XGBoost**, and **LGBM**.
 
 # Screenshots
+## Most informative features by SHAP
 ![Most informative features by SHAP](images/shap_most_informative_features.png)
-Most informative features by SHAP
 
+## Final RMSLE 
 ![Result RMSLE](images/result.png)
-Final RMSLE
