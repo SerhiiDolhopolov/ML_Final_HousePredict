@@ -35,7 +35,7 @@ The task was to train an ML model on a regression problem using the [House Price
 I used tree-based models/ensembles to reach this goal, such as **Decision Tree**, **Random Forest**, **XGBoost**, and **LGBM**.
 
 # Screenshots
-![Most informative features by SHAP](images/shap_most_influential_attributes.png)
+![Most informative features by SHAP](images/shap_most_informative_features.png)
 Most informative features by SHAP
 
 ![Result RMSLE](images/result.png)
