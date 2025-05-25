@@ -57,9 +57,11 @@ Tree-based models and ensembles were used to reach this goal, such as **Decision
    - Make metrics (e.g., RMSE, RMSLE) less sensitive to extreme values
 
 **Before:**
+
 ![Before](images/graphic_before.png)
 
 **After:**
+
 ![After](images/graphic_after.png)
 
 4. Model training was performed. The best hyperparameters were found using Optuna and grid search.
